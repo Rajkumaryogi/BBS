@@ -6,12 +6,13 @@ body {
   background: #f0f0f0;
   color: #222;
   font-size: 15px;
+  -webkit-tap-highlight-color: transparent;
 }
 
-#root { height: 100vh; display: flex; flex-direction: column; }
+#root { height: 100dvh; display: flex; flex-direction: column; }
 
 /* ── App layout ───────────────────────────────── */
-.app-container { display: flex; flex-direction: column; height: 100vh; }
+.app-container { display: flex; flex-direction: column; height: 100dvh; }
 
 .app-header {
   background: #8b1a1a;
@@ -19,20 +20,32 @@ body {
   padding: 10px 20px;
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 .header-brand { display: flex; flex-direction: column; gap: 1px; }
 .header-title { font-size: 18px; font-weight: 700; letter-spacing: 1px; }
 .header-sub   { font-size: 11px; opacity: 0.8; letter-spacing: 0.5px; }
 
-.app-body { display: flex; flex: 1; overflow: hidden; }
+.app-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
 
-/* ── Menu Panel (left) ────────────────────────── */
+/* Panel wrappers — desktop: side by side */
+.panel-wrapper { display: flex; flex-direction: column; overflow: hidden; }
+.menu-wrapper  { width: 55%; border-right: 1px solid #ddd; }
+.bill-wrapper  { width: 45%; }
+
+/* ── Menu Panel ───────────────────────────────── */
 .menu-panel {
-  width: 55%;
   background: #fff;
   overflow-y: auto;
-  border-right: 1px solid #ddd;
   padding: 14px;
+  flex: 1;
+  /* space at bottom for sticky "View Bill" bar on mobile */
+  padding-bottom: 80px;
 }
 
 .panel-header {
@@ -42,18 +55,20 @@ body {
   margin-bottom: 10px;
 }
 .panel-header h2 { font-size: 16px; font-weight: 700; }
+.panel-header-actions { display: flex; gap: 8px; align-items: center; }
 
 .btn-clear {
   background: #fee2e2;
   color: #b91c1c;
   border: none;
-  padding: 5px 12px;
+  padding: 6px 12px;
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
+  touch-action: manipulation;
 }
-.btn-clear:hover { background: #fecaca; }
+.btn-clear:active { background: #fecaca; }
 
 .menu-category { margin-bottom: 16px; }
 
@@ -64,7 +79,7 @@ body {
   letter-spacing: 1px;
   color: #fff;
   background: #8b1a1a;
-  padding: 4px 10px;
+  padding: 5px 10px;
   border-radius: 4px;
   margin-bottom: 6px;
 }
@@ -73,69 +88,96 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 7px 8px;
+  padding: 9px 8px;
   border-radius: 6px;
   margin-bottom: 3px;
   border: 1px solid transparent;
-  transition: background 0.1s;
 }
-.menu-item:hover { background: #fafafa; }
 .menu-item.selected { background: #fff5f5; border-color: #fca5a5; }
 
-.item-info { display: flex; flex-direction: column; gap: 1px; }
-.item-name  { font-size: 13px; font-weight: 500; }
+.item-info { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; padding-right: 8px; }
+.item-name  { font-size: 13px; font-weight: 500; line-height: 1.3; }
 .item-price { font-size: 12px; color: #666; }
 
-.qty-control { display: flex; align-items: center; gap: 6px; }
+.qty-control { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
 .qty-btn {
-  width: 26px; height: 26px;
+  width: 32px; height: 32px;
   border-radius: 50%;
-  border: 1px solid #cbd5e1;
+  border: 1.5px solid #cbd5e1;
   background: #fff;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 18px;
   display: flex; align-items: center; justify-content: center;
   line-height: 1;
+  touch-action: manipulation;
 }
-.qty-btn:hover { background: #f1f5f9; }
-.qty-value { font-size: 14px; font-weight: 700; min-width: 18px; text-align: center; }
+.qty-btn:active { background: #f1f5f9; }
+.qty-value { font-size: 15px; font-weight: 700; min-width: 20px; text-align: center; }
 
 .btn-add {
   background: #8b1a1a;
   color: #fff;
   border: none;
-  padding: 4px 12px;
-  border-radius: 5px;
+  padding: 7px 14px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
+  touch-action: manipulation;
+  white-space: nowrap;
 }
-.btn-add:hover { background: #a52020; }
+.btn-add:active { background: #a52020; }
 
-/* ── Bill Panel (right) ───────────────────────── */
+/* Mobile sticky "View Bill" bar inside menu panel */
+.mobile-view-bill {
+  display: none; /* shown only on mobile via media query */
+  position: fixed;
+  bottom: 56px; /* above tab bar */
+  left: 0;
+  right: 0;
+  padding: 10px 16px;
+  background: transparent;
+  z-index: 50;
+}
+.btn-view-bill {
+  width: 100%;
+  background: #8b1a1a;
+  color: #fff;
+  border: none;
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(139,26,26,0.4);
+  touch-action: manipulation;
+}
+
+/* ── Bill Panel ───────────────────────────────── */
 .bill-panel {
-  width: 45%;
   background: #fafafa;
   overflow-y: auto;
   padding: 14px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  flex: 1;
 }
 
 .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
 .panel-header h2 { font-size: 16px; font-weight: 700; }
 .bill-number { font-size: 13px; color: #888; font-weight: 600; font-family: monospace; }
 
-/* TBL / CVR / WTR inputs */
+/* TBL / CVR / WTR */
 .table-meta {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   padding: 8px 12px;
+  flex-wrap: wrap;
 }
 .table-meta label {
   display: flex;
@@ -147,10 +189,10 @@ body {
   letter-spacing: 0.5px;
 }
 .table-meta input {
-  width: 48px;
+  width: 52px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  padding: 3px 6px;
+  padding: 5px 6px;
   font-size: 13px;
   font-family: monospace;
   font-weight: 600;
@@ -168,7 +210,7 @@ body {
   text-transform: uppercase;
   color: #666;
 }
-.summary-table td { padding: 6px 6px; border-bottom: 1px solid #eee; }
+.summary-table td { padding: 7px 6px; border-bottom: 1px solid #eee; }
 .summary-table td:nth-child(2),
 .summary-table td:nth-child(3),
 .summary-table td:nth-child(4) { text-align: right; }
@@ -185,16 +227,15 @@ body {
   flex-direction: column;
   gap: 8px;
 }
-
 .total-row { display: flex; justify-content: space-between; font-size: 14px; }
 .total-row.subtotal { color: #555; font-weight: 600; }
 
-.gst-section { display: flex; flex-direction: column; gap: 6px; }
-.gst-checkbox { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; font-weight: 500; }
-.gst-checkbox input { width: 16px; height: 16px; cursor: pointer; accent-color: #8b1a1a; }
-.gst-rate-options { display: flex; gap: 16px; padding-left: 24px; }
-.gst-rate-options label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px; }
-.gst-rate-options input { accent-color: #8b1a1a; }
+.gst-section { display: flex; flex-direction: column; gap: 8px; }
+.gst-checkbox { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 15px; font-weight: 500; }
+.gst-checkbox input { width: 18px; height: 18px; cursor: pointer; accent-color: #8b1a1a; }
+.gst-rate-options { display: flex; gap: 20px; padding-left: 28px; }
+.gst-rate-options label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 15px; }
+.gst-rate-options input { width: 18px; height: 18px; accent-color: #8b1a1a; }
 .gst-row { color: #555; }
 
 .divider { border-top: 1.5px solid #ddd; margin: 2px 0; }
@@ -207,19 +248,19 @@ body {
 }
 
 .bill-actions { display: flex; gap: 10px; }
-
 .btn-print {
   flex: 1;
   background: #8b1a1a;
   color: #fff;
   border: none;
-  padding: 11px 0;
+  padding: 13px 0;
   border-radius: 8px;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
+  touch-action: manipulation;
 }
-.btn-print:hover:not(:disabled) { background: #a52020; }
+.btn-print:active:not(:disabled) { background: #a52020; }
 .btn-print:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .btn-new {
@@ -227,18 +268,100 @@ body {
   background: #fff;
   color: #8b1a1a;
   border: 2px solid #8b1a1a;
-  padding: 11px 0;
+  padding: 13px 0;
   border-radius: 8px;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
+  touch-action: manipulation;
 }
-.btn-new:hover { background: #fff5f5; }
+.btn-new:active { background: #fff5f5; }
+
+/* ── Mobile bottom tab bar ────────────────────── */
+.mobile-tabs { display: none; } /* hidden on desktop */
 
 /* ── Bill Slip (print only) ───────────────────── */
 .bill-slip { display: none; }
 
-/* ── Print media ──────────────────────────────── */
+/* ══════════════════════════════════════════════
+   MOBILE  ≤ 767px
+══════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  /* Stack panels; only one visible at a time */
+  .app-body { position: relative; }
+
+  .panel-wrapper {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    display: none;          /* hidden by default */
+    overflow: hidden;
+  }
+  .panel-wrapper.tab-active { display: flex; }
+
+  .menu-wrapper  { border-right: none; }
+
+  /* Bottom tab bar */
+  .mobile-tabs {
+    display: flex;
+    height: 56px;
+    background: #fff;
+    border-top: 1px solid #ddd;
+    flex-shrink: 0;
+  }
+  .tab-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    background: none;
+    border: none;
+    font-size: 11px;
+    color: #888;
+    cursor: pointer;
+    position: relative;
+    touch-action: manipulation;
+  }
+  .tab-btn.active { color: #8b1a1a; border-top: 2px solid #8b1a1a; }
+  .tab-icon { font-size: 20px; line-height: 1; }
+  .tab-badge {
+    position: absolute;
+    top: 6px;
+    right: calc(50% - 18px);
+    background: #8b1a1a;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+  }
+
+  /* Show sticky "View Bill" bar on mobile */
+  .mobile-view-bill { display: block; }
+
+  /* Larger touch targets */
+  .qty-btn { width: 36px; height: 36px; font-size: 20px; }
+  .btn-add  { padding: 9px 16px; font-size: 14px; }
+  .menu-item { padding: 10px 8px; }
+
+  /* Bill panel full width */
+  .bill-panel { padding: 12px; }
+
+  /* Larger GST checkboxes on mobile */
+  .gst-checkbox { font-size: 16px; }
+  .gst-rate-options label { font-size: 16px; }
+}
+
+/* ══════════════════════════════════════════════
+   PRINT
+══════════════════════════════════════════════ */
 @media print {
   body { background: #fff; }
   .no-print { display: none !important; }
@@ -260,13 +383,11 @@ body {
     padding: 4mm 2mm;
   }
 
-  /* Slip header */
   .slip-header     { text-align: center; margin-bottom: 4px; }
   .slip-restaurant { font-size: 16px; font-weight: 900; letter-spacing: 1px; }
   .slip-contact    { font-size: 11px; }
   .slip-cashbill   { font-size: 14px; font-weight: 700; margin-top: 2px; }
 
-  /* Meta rows */
   .slip-meta-row {
     display: flex;
     justify-content: space-between;
@@ -274,7 +395,6 @@ body {
     margin: 2px 0;
   }
 
-  /* Dotted separator */
   .slip-dots {
     font-size: 10px;
     letter-spacing: 1px;
@@ -283,7 +403,6 @@ body {
     margin: 2px 0;
   }
 
-  /* Duplicate copy */
   .slip-duptext {
     text-align: center;
     font-size: 11px;
@@ -291,14 +410,13 @@ body {
     letter-spacing: 2px;
   }
 
-  /* Column layout — fixed widths using flex */
   .slip-col-header,
   .slip-item-row {
     display: flex;
     font-size: 11px;
     gap: 2px;
   }
-  .slip-col-header { font-weight: 700; font-size: 11px; margin-bottom: 1px; }
+  .slip-col-header { font-weight: 700; margin-bottom: 1px; }
 
   .sc-desc { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .sc-qty  { width: 30px; text-align: right; }
@@ -308,7 +426,6 @@ body {
   .subtot-row .sc-desc { font-weight: 700; }
   .subtot-row .sc-amt  { font-weight: 700; }
 
-  /* Cash total row */
   .slip-cash-row {
     display: flex;
     justify-content: space-between;
@@ -318,7 +435,6 @@ body {
     letter-spacing: 0.5px;
   }
 
-  /* Footer row */
   .slip-footer-row {
     display: flex;
     justify-content: space-between;

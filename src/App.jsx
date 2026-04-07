@@ -10,6 +10,7 @@ export default function App() {
   const [tableNo, setTableNo] = useState("0000");
   const [coverCount, setCoverCount] = useState("01");
   const [waiterNo, setWaiterNo] = useState("00");
+  const [activeTab, setActiveTab] = useState("menu"); // "menu" | "bill"
 
   function updateQty(id, delta) {
     setCart((prev) => {
@@ -37,6 +38,12 @@ export default function App() {
     setWaiterNo("00");
   }
 
+  const cartCount = Object.values(cart).reduce((s, q) => s + q, 0);
+  const subtotal = Object.entries(cart).reduce((sum, [id, qty]) => {
+    const item = { price: 0 }; // computed in panels; we just need the count here
+    return sum + qty;
+  }, 0);
+
   return (
     <div className="app-container">
       <header className="app-header no-print">
@@ -45,24 +52,57 @@ export default function App() {
           <span className="header-sub">Billing System</span>
         </div>
       </header>
+
       <div className="app-body">
-        <MenuPanel cart={cart} updateQty={updateQty} onClear={clearCart} />
-        <BillPanel
-          cart={cart}
-          gstEnabled={gstEnabled}
-          setGstEnabled={setGstEnabled}
-          gstRate={gstRate}
-          setGstRate={setGstRate}
-          billNo={billNo}
-          tableNo={tableNo}
-          setTableNo={setTableNo}
-          coverCount={coverCount}
-          setCoverCount={setCoverCount}
-          waiterNo={waiterNo}
-          setWaiterNo={setWaiterNo}
-          onNewBill={onNewBill}
-        />
+        {/* Menu panel — hidden on mobile when bill tab is active */}
+        <div className={`panel-wrapper menu-wrapper${activeTab === "menu" ? " tab-active" : ""}`}>
+          <MenuPanel
+            cart={cart}
+            updateQty={updateQty}
+            onClear={clearCart}
+            onViewBill={() => setActiveTab("bill")}
+            cartCount={cartCount}
+          />
+        </div>
+
+        {/* Bill panel — hidden on mobile when menu tab is active */}
+        <div className={`panel-wrapper bill-wrapper${activeTab === "bill" ? " tab-active" : ""}`}>
+          <BillPanel
+            cart={cart}
+            gstEnabled={gstEnabled}
+            setGstEnabled={setGstEnabled}
+            gstRate={gstRate}
+            setGstRate={setGstRate}
+            billNo={billNo}
+            tableNo={tableNo}
+            setTableNo={setTableNo}
+            coverCount={coverCount}
+            setCoverCount={setCoverCount}
+            waiterNo={waiterNo}
+            setWaiterNo={setWaiterNo}
+            onNewBill={onNewBill}
+          />
+        </div>
       </div>
+
+      {/* Mobile bottom tab bar */}
+      <nav className="mobile-tabs no-print">
+        <button
+          className={`tab-btn${activeTab === "menu" ? " active" : ""}`}
+          onClick={() => setActiveTab("menu")}
+        >
+          <span className="tab-icon">🍽</span>
+          <span>Menu</span>
+        </button>
+        <button
+          className={`tab-btn${activeTab === "bill" ? " active" : ""}`}
+          onClick={() => setActiveTab("bill")}
+        >
+          <span className="tab-icon">🧾</span>
+          <span>Bill</span>
+          {cartCount > 0 && <span className="tab-badge">{cartCount}</span>}
+        </button>
+      </nav>
     </div>
   );
 }

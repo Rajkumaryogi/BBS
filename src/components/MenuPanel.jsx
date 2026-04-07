@@ -1,17 +1,17 @@
 import { menuItems, categories } from "../data/menuItems";
 
-export default function MenuPanel({ cart, updateQty, onClear }) {
-  const totalItemsInCart = Object.values(cart).reduce((s, q) => s + q, 0);
-
+export default function MenuPanel({ cart, updateQty, onClear, onViewBill, cartCount }) {
   return (
     <div className="menu-panel no-print">
       <div className="panel-header">
         <h2>Menu Items</h2>
-        {totalItemsInCart > 0 && (
-          <button className="btn-clear" onClick={onClear}>
-            Clear All
-          </button>
-        )}
+        <div className="panel-header-actions">
+          {cartCount > 0 && (
+            <button className="btn-clear" onClick={onClear}>
+              Clear All
+            </button>
+          )}
+        </div>
       </div>
 
       {categories.map((cat) => (
@@ -33,25 +33,12 @@ export default function MenuPanel({ cart, updateQty, onClear }) {
                   <div className="qty-control">
                     {qty > 0 ? (
                       <>
-                        <button
-                          className="qty-btn"
-                          onClick={() => updateQty(item.id, -1)}
-                        >
-                          −
-                        </button>
+                        <button className="qty-btn" onClick={() => updateQty(item.id, -1)}>−</button>
                         <span className="qty-value">{qty}</span>
-                        <button
-                          className="qty-btn"
-                          onClick={() => updateQty(item.id, 1)}
-                        >
-                          +
-                        </button>
+                        <button className="qty-btn" onClick={() => updateQty(item.id, 1)}>+</button>
                       </>
                     ) : (
-                      <button
-                        className="btn-add"
-                        onClick={() => updateQty(item.id, 1)}
-                      >
+                      <button className="btn-add" onClick={() => updateQty(item.id, 1)}>
                         Add
                       </button>
                     )}
@@ -61,6 +48,15 @@ export default function MenuPanel({ cart, updateQty, onClear }) {
             })}
         </div>
       ))}
+
+      {/* Mobile sticky "View Bill" bar */}
+      {cartCount > 0 && (
+        <div className="mobile-view-bill no-print">
+          <button className="btn-view-bill" onClick={onViewBill}>
+            View Bill · {cartCount} item{cartCount > 1 ? "s" : ""}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
