@@ -10,16 +10,13 @@ export default function App() {
   const [tableNo, setTableNo] = useState("0000");
   const [coverCount, setCoverCount] = useState("01");
   const [waiterNo, setWaiterNo] = useState("00");
-  const [activeTab, setActiveTab] = useState("menu"); // "menu" | "bill"
+  const [activeTab, setActiveTab] = useState("menu");
 
   function updateQty(id, delta) {
     setCart((prev) => {
       const current = prev[id] || 0;
       const next = current + delta;
-      if (next <= 0) {
-        const { [id]: _, ...rest } = prev;
-        return rest;
-      }
+      if (next <= 0) { const { [id]: _, ...rest } = prev; return rest; }
       return { ...prev, [id]: next };
     });
   }
@@ -39,10 +36,6 @@ export default function App() {
   }
 
   const cartCount = Object.values(cart).reduce((s, q) => s + q, 0);
-  const subtotal = Object.entries(cart).reduce((sum, [id, qty]) => {
-    const item = { price: 0 }; // computed in panels; we just need the count here
-    return sum + qty;
-  }, 0);
 
   return (
     <div className="app-container">
@@ -54,50 +47,28 @@ export default function App() {
       </header>
 
       <div className="app-body">
-        {/* Menu panel — hidden on mobile when bill tab is active */}
-        <div className={`panel-wrapper menu-wrapper${activeTab === "menu" ? " tab-active" : ""}`}>
-          <MenuPanel
-            cart={cart}
-            updateQty={updateQty}
-            onClear={clearCart}
-            onViewBill={() => setActiveTab("bill")}
-            cartCount={cartCount}
-          />
+        <div className={"panel-wrapper menu-wrapper" + (activeTab === "menu" ? " tab-active" : "")}>
+          <MenuPanel cart={cart} updateQty={updateQty} onClear={clearCart}
+            onViewBill={() => setActiveTab("bill")} cartCount={cartCount} />
         </div>
-
-        {/* Bill panel — hidden on mobile when menu tab is active */}
-        <div className={`panel-wrapper bill-wrapper${activeTab === "bill" ? " tab-active" : ""}`}>
-          <BillPanel
-            cart={cart}
-            gstEnabled={gstEnabled}
-            setGstEnabled={setGstEnabled}
-            gstRate={gstRate}
-            setGstRate={setGstRate}
+        <div className={"panel-wrapper bill-wrapper" + (activeTab === "bill" ? " tab-active" : "")}>
+          <BillPanel cart={cart}
+            gstEnabled={gstEnabled} setGstEnabled={setGstEnabled}
+            gstRate={gstRate} setGstRate={setGstRate}
             billNo={billNo}
-            tableNo={tableNo}
-            setTableNo={setTableNo}
-            coverCount={coverCount}
-            setCoverCount={setCoverCount}
-            waiterNo={waiterNo}
-            setWaiterNo={setWaiterNo}
-            onNewBill={onNewBill}
-          />
+            tableNo={tableNo} setTableNo={setTableNo}
+            coverCount={coverCount} setCoverCount={setCoverCount}
+            waiterNo={waiterNo} setWaiterNo={setWaiterNo}
+            onNewBill={onNewBill} />
         </div>
       </div>
 
-      {/* Mobile bottom tab bar */}
       <nav className="mobile-tabs no-print">
-        <button
-          className={`tab-btn${activeTab === "menu" ? " active" : ""}`}
-          onClick={() => setActiveTab("menu")}
-        >
+        <button className={"tab-btn" + (activeTab === "menu" ? " active" : "")} onClick={() => setActiveTab("menu")}>
           <span className="tab-icon">🍽</span>
           <span>Menu</span>
         </button>
-        <button
-          className={`tab-btn${activeTab === "bill" ? " active" : ""}`}
-          onClick={() => setActiveTab("bill")}
-        >
+        <button className={"tab-btn" + (activeTab === "bill" ? " active" : "")} onClick={() => setActiveTab("bill")}>
           <span className="tab-icon">🧾</span>
           <span>Bill</span>
           {cartCount > 0 && <span className="tab-badge">{cartCount}</span>}
