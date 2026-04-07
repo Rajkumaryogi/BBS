@@ -3,34 +3,61 @@ import BillSlip from "./BillSlip";
 
 export default function BillPanel({
   cart,
-  gstEnabled,
-  setGstEnabled,
-  gstRate,
-  setGstRate,
+  gstEnabled, setGstEnabled,
+  gstRate, setGstRate,
   billNo,
+  tableNo, setTableNo,
+  coverCount, setCoverCount,
+  waiterNo, setWaiterNo,
   onNewBill,
 }) {
   const cartItems = menuItems.filter((item) => (cart[item.id] || 0) > 0);
   const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * cart[item.id],
-    0
+    (sum, item) => sum + item.price * cart[item.id], 0
   );
   const gstAmount = gstEnabled ? Math.round(subtotal * gstRate) / 100 : 0;
   const total = subtotal + gstAmount;
 
-  function handlePrint() {
-    window.print();
-  }
-
   return (
     <div className="bill-panel">
-      {/* Screen view — hidden during print */}
+      {/* ── Screen view ── */}
       <div className="no-print">
         <div className="panel-header">
           <h2>Bill Summary</h2>
           <span className="bill-number">
-            Bill #{String(billNo).padStart(4, "0")}
+            No.{String(billNo).padStart(6, "0")}
           </span>
+        </div>
+
+        {/* TBL / CVR / WTR */}
+        <div className="table-meta">
+          <label>
+            TBL
+            <input
+              type="text"
+              value={tableNo}
+              maxLength={4}
+              onChange={(e) => setTableNo(e.target.value)}
+            />
+          </label>
+          <label>
+            CVR
+            <input
+              type="text"
+              value={coverCount}
+              maxLength={4}
+              onChange={(e) => setCoverCount(e.target.value)}
+            />
+          </label>
+          <label>
+            WTR
+            <input
+              type="text"
+              value={waiterNo}
+              maxLength={4}
+              onChange={(e) => setWaiterNo(e.target.value)}
+            />
+          </label>
         </div>
 
         {cartItems.length === 0 ? (
@@ -39,10 +66,10 @@ export default function BillPanel({
           <table className="summary-table">
             <thead>
               <tr>
-                <th>Item</th>
+                <th>Description</th>
                 <th>Qty</th>
                 <th>Rate</th>
-                <th>Amt</th>
+                <th>Amount</th>
               </tr>
             </thead>
             <tbody>
@@ -60,11 +87,10 @@ export default function BillPanel({
 
         <div className="bill-totals">
           <div className="total-row subtotal">
-            <span>Subtotal</span>
+            <span>SUB_TOT</span>
             <span>₹{subtotal}</span>
           </div>
 
-          {/* GST Toggle */}
           <div className="gst-section">
             <label className="gst-checkbox">
               <input
@@ -77,23 +103,13 @@ export default function BillPanel({
             {gstEnabled && (
               <div className="gst-rate-options">
                 <label>
-                  <input
-                    type="radio"
-                    name="gstRate"
-                    value={5}
-                    checked={gstRate === 5}
-                    onChange={() => setGstRate(5)}
-                  />
+                  <input type="radio" name="gstRate" value={5}
+                    checked={gstRate === 5} onChange={() => setGstRate(5)} />
                   5%
                 </label>
                 <label>
-                  <input
-                    type="radio"
-                    name="gstRate"
-                    value={18}
-                    checked={gstRate === 18}
-                    onChange={() => setGstRate(18)}
-                  />
+                  <input type="radio" name="gstRate" value={18}
+                    checked={gstRate === 18} onChange={() => setGstRate(18)} />
                   18%
                 </label>
               </div>
@@ -108,7 +124,7 @@ export default function BillPanel({
 
           <div className="divider" />
           <div className="total-row grand-total">
-            <span>TOTAL</span>
+            <span>CASH</span>
             <span>₹{total}</span>
           </div>
         </div>
@@ -117,7 +133,7 @@ export default function BillPanel({
           <button
             className="btn-print"
             disabled={cartItems.length === 0}
-            onClick={handlePrint}
+            onClick={() => window.print()}
           >
             Print Bill
           </button>
@@ -127,12 +143,15 @@ export default function BillPanel({
         </div>
       </div>
 
-      {/* Print-only bill slip */}
+      {/* ── Print-only slip ── */}
       <BillSlip
         cart={cart}
         gstEnabled={gstEnabled}
         gstRate={gstRate}
         billNo={billNo}
+        tableNo={tableNo}
+        coverCount={coverCount}
+        waiterNo={waiterNo}
       />
     </div>
   );
